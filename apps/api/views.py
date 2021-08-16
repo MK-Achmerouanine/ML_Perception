@@ -1,9 +1,18 @@
 from rest_framework import viewsets
 from django.http import HttpResponse
-from .models import Endpoint, ImageToTranslate
-from .serializers import EndpointSerializer, ImageToTranslateSerializer
+from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText
+from .serializers import EndpointSerializer, ImageToTranslateSerializer, TextToConvertSerializer
+from .serializers import AudioToTextSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
+from django.conf import settings 
+from django.core.files.base import ContentFile
+from django.core.files import File as DjangoFile
+import pyttsx3
+import os.path
+import time
+
+
 
 
 class EndpointViewSet(viewsets.ModelViewSet):
@@ -19,6 +28,62 @@ class EndpointViewSet(viewsets.ModelViewSet):
         queryset = Endpoint.objects.all()
         endpoint = get_object_or_404(queryset, pk=pk)
         serializer = EndpointSerializer(endpoint)
+        return Response(serializer.data)
+
+
+class TextConvertedToAudioViewSet(viewsets.ModelViewSet):
+    queryset = TextToAudio.objects.all()
+    serializer_class = TextToConvertSerializer
+
+    
+    def post(self, request, *args, **kwargs):
+        if not request.data['text']:
+            return Response({'error': 'Bad Request'}, status=400)
+        serializer = TextToConvertSerializer(data=request.data)
+        if serializer.is_valid():
+            print('Valid serializer')
+            txt_to_convert = serializer.save()
+            media_path = settings.MEDIA_ROOT
+            print(f'Text to convert: {txt_to_convert.text}')
+
+            engine = pyttsx3.init(driverName="espeak")
+            #get voice properties
+            voices = engine.getProperty('voices')
+            for voice in voices:
+                print("Voice:")
+                print(" - ID: %s" % voice.id)
+                print(" - Name: %s" % voice.name)
+                print(" - Languages: %s" % voice.languages)
+                print(" - Gender: %s" % voice.gender)
+            #set some voice properties
+            engine.setProperty('voice', "b'\\x02en-gb")   # use french for french
+            engine.setProperty('rate', 130)
+            
+            dirname = f'{media_path}/trash/'
+            filename = f'speech-{txt_to_convert.slug}.wav'
+            engine.save_to_file(txt_to_convert.text, dirname+filename)
+            engine.runAndWait()
+            while not os.path.exists(dirname+filename):
+                time.sleep(1)
+
+            audio = open(dirname+filename, "rb")
+            print(audio)
+            django_file = DjangoFile(audio)
+            txt_to_convert.audio.save(filename,django_file)
+            audio.close()
+
+            return Response(
+                TextToConvertSerializer(
+                    instance=txt_to_convert
+                ).data,
+                status=200
+            )
+        else:
+            return Response({'error': f'Invalid Data: {serializer.errors}'}, status=400)
+
+    def list(self, request):
+        queryset = TextToAudio.objects.all()
+        serializer = TextToConvertSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -61,4 +126,46 @@ class ImageToTranslateViewSet(viewsets.ModelViewSet):
         queryset = ImageToTranslate.objects.all()
         image_to_translate = get_object_or_404(queryset, pk=pk)
         serializer = ImageToTranslateSerializer(image_to_translate)
+        return Response(serializer.data) 
+
+class AudioToTextViewSet(viewsets.ModelViewSet):
+    queryset = AudioToText.objects.all()
+    serializer_class = AudioToTextSerializer
+
+    def post(self, request, *args, **kwargs):
+        print("9bel if: ", request.data['audio'])
+        if not request.data['audio']:
+            print("west if: ", request.data['audio'])
+            return HttpResponse({'error': 'Bad Request'}, status=400)
+        serializer = AudioToTextSerializer(data=request.data)
+        if serializer.is_valid():
+            audio_tobe_converted = serializer.save()
+            print(audio_tobe_converted)
+            from .audio_to_text import get_large_audio_transcription
+            #print(f'serializer path : {img_to_trans.image}')
+            text_result = get_large_audio_transcription(f'media/{audio_tobe_converted.audio}', 'en')
+            print(f'TEXT is {text_result}')
+            audio_tobe_converted.text = text_result
+            audio_tobe_converted.save()
+            # delete the content of audio_chunks folder after getting the text from audio
+            mydir = 'media/trash/audio_chunks'
+            for f in os.listdir(mydir):
+                os.remove(os.path.join(mydir, f))
+            
+            return Response(
+                AudioToTextSerializer(
+                    instance=audio_tobe_converted
+                ).data,
+                status=200
+            )
+            
+            
+        else:
+            return HttpResponse({'error': 'Invalid Data'}, status=400)
+
+    def list(self, request):
+        queryset = AudioToText.objects.all()
+        serializer = AudioToTextSerializer(queryset, many=True)
         return Response(serializer.data)
+
+

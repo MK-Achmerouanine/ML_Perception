@@ -38,3 +38,39 @@ class ImageToTranslate(models.Model):
 
     def __str__(self):
         return self.image.url
+
+
+class AudioToText(models.Model):
+    slug = models.SlugField(_("Slug"), default=uuid.uuid4())
+    audio = models.FileField(_("Audio"), upload_to="audio_to_text")
+    text = models.TextField(_("Text"), blank=True, null=True)
+
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    modified_at = models.DateTimeField(_("Modified at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Audio to text")
+        verbose_name_plural = _("Audios to text")
+
+    def __str__(self):
+        return self.audio.url
+        
+
+
+
+class TextToAudio(models.Model):
+    slug = models.SlugField(_("Slug"), default=uuid.uuid4())
+    audio = models.FileField(_("Audio from text"), upload_to="text_to_audio", blank=True, null=True)
+    text = models.TextField(_("Text"), blank=True, null=True)
+
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    modified_at = models.DateTimeField(_("Modified at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Text to convert")
+        verbose_name_plural = _("Texts to convert")
+
+    def __str__(self):
+        return self.audio.url
+
+

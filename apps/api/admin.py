@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Endpoint, ImageToTranslate
+from .models import Endpoint, ImageToTranslate, TextToAudio
 from django.utils.html import format_html
 
 
@@ -24,3 +24,8 @@ class ImageToTranslateAdmin(admin.ModelAdmin):
     list_display = ['image_tag']
     readonly_fields = ['image_tag']
 admin.site.register(ImageToTranslate, ImageToTranslateAdmin)
+
+class TextToAudioAdmin(admin.ModelAdmin):
+    list_display = ('audio', 'text','created_at',)
+    
+admin.site.register(TextToAudio, TextToAudioAdmin)
