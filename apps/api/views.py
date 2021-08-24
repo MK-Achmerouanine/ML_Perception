@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from django.http import HttpResponse
-from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText
-from .serializers import EndpointSerializer, ImageToTranslateSerializer, TextToConvertSerializer
+from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText, ImageToAudio
+from .serializers import EndpointSerializer, ImageToTranslateSerializer, TextToConvertSerializer, ImageToAudioSerializer
 from .serializers import AudioToTextSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -169,3 +169,65 @@ class AudioToTextViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+
+class ImageToAudioViewSet(viewsets.ModelViewSet):
+    queryset = ImageToAudio.objects.all()
+    serializer_class = ImageToAudioSerializer
+
+    def post(self, request, *args, **kwargs):
+        # file = request.data['file']
+        if not request.data['image']:
+            return HttpResponse({'error': 'Bad Request'}, status=400)
+        serializer = ImageToAudioSerializer(data=request.data)
+        if serializer.is_valid():
+            img_to_audio = serializer.save()
+            from .image_to_text import preprocess
+            import pytesseract
+            print(f'serializer path : {img_to_audio.image}')
+            media_path = settings.MEDIA_ROOT
+            thresh = preprocess(f'media/{img_to_audio.image}')
+            text = pytesseract.image_to_string(thresh, lang='eng')
+            print(f'TEXT is {text}')
+            engine = pyttsx3.init(driverName="espeak")
+            #get voice properties
+            voices = engine.getProperty('voices')
+            for voice in voices:
+                print("Voice:")
+                print(" - ID: %s" % voice.id)
+                print(" - Name: %s" % voice.name)
+                print(" - Languages: %s" % voice.languages)
+                print(" - Gender: %s" % voice.gender)
+            #set some voice properties
+            engine.setProperty('voice', "b'\\x02en-gb")   # use french for french
+            engine.setProperty('rate', 130)
+            
+            dirname = f'{media_path}/trash/'
+            filename = f'ImgSpeech-{img_to_audio.slug}.wav'
+            engine.save_to_file(text, dirname+filename)
+            engine.runAndWait()
+            while not os.path.exists(dirname+filename):
+                time.sleep(1)
+
+            audio = open(dirname+filename, "rb")
+            print(audio)
+            django_file = DjangoFile(audio)
+            img_to_audio.audio.save(filename,django_file)
+            audio.close()
+            img_to_audio.text = text
+            img_to_audio.save()
+
+            return Response(
+                ImageToAudioSerializer(
+                    instance=img_to_audio
+                ).data,
+                status=200
+            )
+        else:
+            return HttpResponse({'error': 'Invalid Data'}, status=400)
+
+    def list(self, request):
+        queryset = ImageToAudio.objects.all()
+        serializer = ImageToAudioSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    

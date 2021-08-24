@@ -10,14 +10,14 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     networks:
-      - main
+      - main 
     restart: on-failure
   web:
     build: .
     #before deployment
-    command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    #command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
     #after deployment
-    #command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && gunicorn backend.wsgi -b 0.0.0.0:8000"
+    command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && gunicorn backend.wsgi -b 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
@@ -27,19 +27,19 @@ services:
     networks:
       - main
     restart: on-failure
-  demos:
-    image: edtechdataapis.azurecr.io/ml_perception_web:latest
-    build: .
-    command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && gunicorn backend.wsgi -b 0.0.0.0:8000"
-    volumes:
-      - .:/code
-    ports: 
-      - 80:8000
-    depends_on:
-      - db
-    networks:
-      - main
-    restart: on-failure
+  # demos:
+  #   image: edtechdataapis.azurecr.io/ml_perception_web:latest
+  #   build: .
+  #   command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && gunicorn backend.wsgi -b 0.0.0.0:80"
+  #   volumes:
+  #     - .:/code
+  #   ports: 
+  #     - 80:80
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - main
+  #   restart: on-failure
 networks:
   main:
     driver: bridge

@@ -15,7 +15,7 @@ SECRET_KEY = '$5=xq3+&e49@*nu)d@ey$v-x8we4k*0do1!o2='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'edtechdataapis.azurewebsites.net']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

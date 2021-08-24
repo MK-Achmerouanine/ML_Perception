@@ -8,4 +8,5 @@ RUN pip install -r requirements.txt
 COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 COPY . /code/
-EXPOSE 8000
+#ENV LISTEN_PORT=8080
+#EXPOSE 8080

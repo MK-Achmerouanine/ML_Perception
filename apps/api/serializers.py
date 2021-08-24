@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText
+from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText, ImageToAudio
 
 
 class EndpointSerializer(serializers.ModelSerializer):
@@ -13,6 +13,14 @@ class ImageToTranslateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ImageToTranslate
+        exclude = ('id',)
+
+
+class ImageToAudioSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+    #audio = serializers.FileField(required = False,allow_empty_file=True)
+    class Meta:
+        model = ImageToAudio
         exclude = ('id',)
 
 class AudioToTextSerializer(serializers.ModelSerializer):
