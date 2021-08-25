@@ -15,9 +15,9 @@ services:
   web:
     build: .
     #before deployment
-    #command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
+    command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     #after deployment
-    command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && gunicorn backend.wsgi -b 0.0.0.0:8000"
+    #command: sh -c "./wait-for-it.sh db:5432 && python manage.py makemigrations && python manage.py migrate && gunicorn backend.wsgi -b 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:

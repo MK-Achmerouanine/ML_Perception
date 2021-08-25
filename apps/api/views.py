@@ -200,9 +200,16 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
             #set some voice properties
             engine.setProperty('voice', "b'\\x02en-gb")   # use french for french
             engine.setProperty('rate', 130)
-            
+
+            import string    
+            import random # define the random module  
+            S = 5  # number of characters in the string.  
+            # call random.choices() string module to find the string in Uppercase + numeric data.  
+            ran = ''.join(random.choices(string.ascii_uppercase + string.digits, k = S))    
+            print("The randomly generated string is : " + str(ran))
+
             dirname = f'{media_path}/trash/'
-            filename = f'ImgSpeech-{img_to_audio.slug}.wav'
+            filename = f'ImgSpeech-{str(ran)}.wav'
             engine.save_to_file(text, dirname+filename)
             engine.runAndWait()
             while not os.path.exists(dirname+filename):
@@ -216,12 +223,14 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
             img_to_audio.text = text
             img_to_audio.save()
 
+            print(f'Filename BEFORE RESPONSE {filename}')
             return Response(
                 ImageToAudioSerializer(
                     instance=img_to_audio
                 ).data,
                 status=200
             )
+            
         else:
             return HttpResponse({'error': 'Invalid Data'}, status=400)
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Endpoint, ImageToTranslate, TextToAudio
+from .models import Endpoint, ImageToTranslate, TextToAudio, ImageToAudio
 from django.utils.html import format_html
 
 
@@ -29,3 +29,8 @@ class TextToAudioAdmin(admin.ModelAdmin):
     list_display = ('audio', 'text','created_at',)
     
 admin.site.register(TextToAudio, TextToAudioAdmin)
+
+class ImageToAudioAdmin(admin.ModelAdmin):
+    list_display = ('audio', 'text','image','created_at')
+    
+admin.site.register(ImageToAudio, ImageToAudioAdmin)
