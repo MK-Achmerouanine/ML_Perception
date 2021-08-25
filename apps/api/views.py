@@ -198,7 +198,7 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
                 print(" - Languages: %s" % voice.languages)
                 print(" - Gender: %s" % voice.gender)
             #set some voice properties
-            engine.setProperty('voice', "b'\\x02en-gb")   # use french for french
+            engine.setProperty('voice', "english+f4")   # use french for french
             engine.setProperty('rate', 130)
 
             import string    
