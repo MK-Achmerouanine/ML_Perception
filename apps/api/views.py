@@ -205,7 +205,8 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
             import random # define the random module  
             S = 5  # number of characters in the string.  
             # call random.choices() string module to find the string in Uppercase + numeric data.  
-            ran = ''.join(random.choices(string.ascii_uppercase + string.digits, k = S))    
+            ran = ''.join(random.choices(string.ascii_uppercase + string.digits, k = S))   
+            img_to_audio.slug = str(ran)
             print("The randomly generated string is : " + str(ran))
 
             dirname = f'{media_path}/trash/'
@@ -222,7 +223,7 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
             audio.close()
             img_to_audio.text = text
             img_to_audio.save()
-
+            print("This is the slug for your audio file:  " + img_to_audio.slug)
             print(f'Filename BEFORE RESPONSE {filename}')
             return Response(
                 ImageToAudioSerializer(
