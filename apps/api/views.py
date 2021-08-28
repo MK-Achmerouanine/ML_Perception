@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from django.http import HttpResponse
-from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText, ImageToAudio
+from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText, ImageToAudio, TextToGcode
 from .serializers import EndpointSerializer, ImageToTranslateSerializer, TextToConvertSerializer, ImageToAudioSerializer
-from .serializers import AudioToTextSerializer
+from .serializers import AudioToTextSerializer, TextToGcodeSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from django.conf import settings 
@@ -240,4 +240,36 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
         serializer = ImageToAudioSerializer(queryset, many=True)
         return Response(serializer.data)
 
+
+class TextToGcodeViewSet(viewsets.ModelViewSet):
+    queryset = TextToGcode.objects.all()
+    serializer_class = TextToGcodeSerializer
+
+    
+    def post(self, request, *args, **kwargs):
+        if not request.data['text']:
+            return Response({'error': 'Bad Request'}, status=400)
+        serializer = TextToGcodeSerializer(data=request.data)
+        if serializer.is_valid():
+            print('Valid serializer')
+            txt_to_convert = serializer.save()
+            print(f'Text to convert: {txt_to_convert.text}')
+
+            from .text_to_gcode import generate_Gcode_from_text
+            myGcode = generate_Gcode_from_text(txt_to_convert.text)
+            txt_to_convert.gcode = myGcode
+
+            return Response(
+                TextToGcodeSerializer(
+                    instance=txt_to_convert
+                ).data,
+                status=200
+            )
+        else:
+            return Response({'error': f'Invalid Data: {serializer.errors}'}, status=400)
+
+    def list(self, request):
+        queryset = TextToGcode.objects.all()
+        serializer = TextToGcodeSerializer(queryset, many=True)
+        return Response(serializer.data)
     

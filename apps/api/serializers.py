@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText, ImageToAudio
+from .models import Endpoint, ImageToTranslate, TextToAudio, AudioToText, ImageToAudio, TextToGcode
 
 
 class EndpointSerializer(serializers.ModelSerializer):
@@ -37,3 +37,10 @@ class TextToConvertSerializer(serializers.ModelSerializer):
         model = TextToAudio
         exclude = ('id',)
 
+
+class TextToGcodeSerializer(serializers.ModelSerializer):
+    gcode = serializers.CharField(required = False)
+
+    class Meta:
+        model = TextToGcode
+        exclude = ('id',)

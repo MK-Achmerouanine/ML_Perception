@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import EndpointViewSet, ImageToTranslateViewSet, TextConvertedToAudioViewSet, AudioToTextViewSet, ImageToAudioViewSet
+from .views import EndpointViewSet, ImageToTranslateViewSet, TextConvertedToAudioViewSet, AudioToTextViewSet, ImageToAudioViewSet, TextToGcodeViewSet
 app = 'api'
 
 urlpatterns = [
@@ -29,5 +29,10 @@ urlpatterns = [
     path('image_to_audio/', ImageToAudioViewSet.as_view(
         {'get': 'list', 'post': 'post'}),
         name="image-to-audio"),
-    
+
+    #text_to_gcode
+    path('text_to_gcode/', TextToGcodeViewSet.as_view(
+        {'get': 'list', 'post': 'post'}),
+        name="text-to-gcode"),
+
 ]

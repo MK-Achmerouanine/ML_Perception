@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Endpoint, ImageToTranslate, TextToAudio, ImageToAudio
+from .models import Endpoint, ImageToTranslate, TextToAudio, ImageToAudio, TextToGcode
 from django.utils.html import format_html
 
 
@@ -34,3 +34,8 @@ class ImageToAudioAdmin(admin.ModelAdmin):
     list_display = ('audio', 'text','image','created_at')
     
 admin.site.register(ImageToAudio, ImageToAudioAdmin)
+
+class TextToGcodeAdmin(admin.ModelAdmin):
+    list_display = ('text', 'gcode','created_at')
+    
+admin.site.register(TextToGcode, TextToGcodeAdmin)
