@@ -79,7 +79,7 @@ def textToGcode(letters, text, lineLength, lineSpacing, padding):
 
 
 def generate_Gcode_from_text(text):
-	letters = readLetters("apps/api/ascii_gcode")
+	letters = readLetters("apps/api/ascii_gcode") 
 	print("ha l contenu dyal letters : ", letters)
 	gcode = textToGcode(letters, text, 0.5, 8.0, 1.5)
 	return gcode

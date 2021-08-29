@@ -181,12 +181,13 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
         serializer = ImageToAudioSerializer(data=request.data)
         if serializer.is_valid():
             img_to_audio = serializer.save()
-            from .image_to_text import preprocess
+            from .image_to_txt import image_to_text
             import pytesseract
             print(f'serializer path : {img_to_audio.image}')
             media_path = settings.MEDIA_ROOT
-            thresh = preprocess(f'media/{img_to_audio.image}')
-            text = pytesseract.image_to_string(thresh, lang='eng')
+            #thresh = preprocess(f'media/{img_to_audio.image}')
+            text = image_to_text(f'media/{img_to_audio.image}')
+            #text = pytesseract.image_to_string(thresh, lang='eng')
             print(f'TEXT is {text}')
             engine = pyttsx3.init(driverName="espeak")
             #get voice properties

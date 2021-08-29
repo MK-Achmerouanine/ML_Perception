@@ -16,3 +16,5 @@ pydub
 django-heroku
 whitenoise
 gunicorn
+textblob
+scipy
