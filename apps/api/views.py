@@ -98,12 +98,11 @@ class ImageToTranslateViewSet(viewsets.ModelViewSet):
         serializer = ImageToTranslateSerializer(data=request.data)
         if serializer.is_valid():
             img_to_trans = serializer.save()
-            from .image_to_text import preprocess
-            import pytesseract
+            from .image_to_txt import image_to_text
             print(f'serializer path : {img_to_trans.image}')
+            text = image_to_text(f'media/{img_to_trans.image}')
 
-            thresh = preprocess(f'media/{img_to_trans.image}')
-            text = pytesseract.image_to_string(thresh, lang='eng')
+            print(f'serializer path : {img_to_trans.image}')
             print(f'TEXT is {text}')
             img_to_trans.text = text
             img_to_trans.save()
@@ -182,7 +181,6 @@ class ImageToAudioViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             img_to_audio = serializer.save()
             from .image_to_txt import image_to_text
-            import pytesseract
             print(f'serializer path : {img_to_audio.image}')
             media_path = settings.MEDIA_ROOT
             #thresh = preprocess(f'media/{img_to_audio.image}')
